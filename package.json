@@ -16,7 +16,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "generate": "grpc_tools_node_protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/generated --ts_proto_opt=outputServices=nice-grpc,outputServices=generic-definitions,useExactTypes=false -I ./contracts ./contracts/Flight.proto",
+    "generate": "mkdir -p ./src/generated && grpc_tools_node_protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/generated --ts_proto_opt=outputServices=nice-grpc,outputServices=generic-definitions,useExactTypes=false -I ./contracts ./contracts/Flight.proto",
     "build": "npm run generate && tsc",
     "test": "node --test ./dist/**/*.test.js"
   },
