@@ -1,0 +1,15 @@
+node_modules/
+dist/
+src/generated/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# AI
+.claude/
+.cursor/
+.copilot/
