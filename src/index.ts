@@ -1,6 +1,7 @@
 export { FlightClient } from './client';
 export type { FlightClientOptions } from './client';
 export { PutOperation } from './operations/put';
+export { rowsToTable } from './convert';
 export { ActionOperation } from './operations/action';
 export type {
   Action,

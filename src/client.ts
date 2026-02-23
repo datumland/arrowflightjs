@@ -13,6 +13,7 @@ import {
   FlightServiceClient,
 } from './generated/Flight';
 import { PutOperation } from './operations/put';
+import { rowsToTable } from './convert';
 import { ActionOperation } from './operations/action';
 
 export interface FlightClientOptions {
@@ -68,7 +69,8 @@ export class FlightClient {
     return this.grpcClient;
   }
 
-  put(table: Table): PutOperation {
+  put(data: Table | Record<string, unknown>[]): PutOperation {
+    const table = Array.isArray(data) ? rowsToTable(data) : data;
     return new PutOperation(this.grpcClient, table);
   }
 
