@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "apache-arrow": "^21.1.0",
-    "nice-grpc": "^2.1.14"
+    "nice-grpc": "^2.1.15"
   },
   "devDependencies": {
     "grpc-tools": "^1.13.1",
