@@ -11,10 +11,10 @@ import type { Table } from 'apache-arrow';
 import {
   FlightServiceDefinition,
   FlightServiceClient,
-} from './generated/Flight';
-import { PutOperation } from './operations/put';
-import { rowsToTable } from './convert';
-import { ActionOperation } from './operations/action';
+} from './generated/Flight.js';
+import { PutOperation } from './operations/put.js';
+import { rowsToTable } from './convert.js';
+import { ActionOperation } from './operations/action.js';
 
 export interface FlightClientOptions {
   tls?: boolean;

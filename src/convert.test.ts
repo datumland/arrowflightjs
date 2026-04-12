@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { rowsToTable } from './convert';
+import { rowsToTable } from './convert.js';
 
 describe('rowsToTable', () => {
   it('converts row objects to a columnar Arrow Table', () => {

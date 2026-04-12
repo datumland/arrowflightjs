@@ -1,8 +1,8 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { ActionOperation } from './action';
-import type { FlightServiceClient } from '../generated/Flight';
-import type { Action, Result } from '../generated/Flight';
+import { ActionOperation } from './action.js';
+import type { FlightServiceClient } from '../generated/Flight.js';
+import type { Action, Result } from '../generated/Flight.js';
 
 /** Mock that captures the Action and CallOptions sent to doAction. */
 function mockClient(results: Result[] = []) {

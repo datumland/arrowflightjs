@@ -1,5 +1,5 @@
 import { Metadata } from 'nice-grpc';
-import type { FlightServiceClient } from '../generated/Flight';
+import type { FlightServiceClient } from '../generated/Flight.js';
 
 export class ActionOperation {
   private body: Buffer | undefined;

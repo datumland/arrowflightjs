@@ -2,12 +2,13 @@
   "compilerOptions": {
     "lib": ["ES2023"],
     "target": "ES2023",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "declaration": true,
     "sourceMap": true,
+    "rootDir": "./src",
     "outDir": "./dist",
     "strict": true
   },

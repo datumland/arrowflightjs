@@ -1,9 +1,9 @@
 import { tableToIPC } from 'apache-arrow';
 import type { Table } from 'apache-arrow';
 import { Metadata } from 'nice-grpc';
-import type { FlightServiceClient } from '../generated/Flight';
-import { FlightDescriptor_DescriptorType } from '../generated/Flight';
-import type { FlightDescriptor, FlightData, PutResult } from '../generated/Flight';
+import type { FlightServiceClient } from '../generated/Flight.js';
+import { FlightDescriptor_DescriptorType } from '../generated/Flight.js';
+import type { FlightDescriptor, FlightData, PutResult } from '../generated/Flight.js';
 
 /**
  * Parse an Arrow IPC stream into individual {header, body} pairs.

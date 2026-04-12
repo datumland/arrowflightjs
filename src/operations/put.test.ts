@@ -1,10 +1,10 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { tableFromArrays } from 'apache-arrow';
-import { PutOperation } from './put';
-import { FlightDescriptor_DescriptorType } from '../generated/Flight';
-import type { FlightServiceClient } from '../generated/Flight';
-import type { FlightData, PutResult } from '../generated/Flight';
+import { PutOperation } from './put.js';
+import { FlightDescriptor_DescriptorType } from '../generated/Flight.js';
+import type { FlightServiceClient } from '../generated/Flight.js';
+import type { FlightData, PutResult } from '../generated/Flight.js';
 
 /** Minimal mock that captures the FlightData messages and CallOptions sent via doPut. */
 function mockClient(putResults: PutResult[] = []) {
