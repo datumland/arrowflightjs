@@ -33,6 +33,32 @@ describe('rowsToTable', () => {
     assert.equal(table.getChild('details')!.get(1), null);
   });
 
+  it('handles struct columns missing from some rows (undefined → null)', () => {
+    const table = rowsToTable([
+      { id: 1 },
+      { id: 2, value: { amount: 7555, currency: 'UAH' } },
+      { id: 3, value: { amount: 100, currency: 'EUR' } },
+    ]);
+
+    assert.equal(table.numRows, 3);
+    assert.equal(table.getChild('value')!.get(0), null);
+    assert.equal(table.getChild('value')!.get(1)?.amount, 7555);
+    assert.equal(table.getChild('value')!.get(2)?.currency, 'EUR');
+  });
+
+  it('normalises nested structs with differing sub-keys', () => {
+    const table = rowsToTable([
+      { id: 1, meta: { a: 1, nested: { x: 10 } } },
+      { id: 2, meta: { a: 2 } },
+      { id: 3, meta: null },
+    ]);
+
+    assert.equal(table.numRows, 3);
+    assert.equal(table.getChild('meta')!.get(0)?.nested?.x, 10);
+    assert.equal(table.getChild('meta')!.get(1)?.nested, null);
+    assert.equal(table.getChild('meta')!.get(2), null);
+  });
+
   it('throws on empty array', () => {
     assert.throws(() => rowsToTable([]), /at least one row/);
   });
