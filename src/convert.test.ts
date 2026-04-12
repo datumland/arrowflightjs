@@ -11,7 +11,7 @@ describe('rowsToTable', () => {
 
     assert.equal(table.numRows, 2);
     assert.equal(table.numCols, 2);
-    assert.deepEqual(table.getChild('id')!.toArray(), new Int32Array([1, 2]));
+    assert.deepEqual(table.getChild('id')!.toArray(), new Float64Array([1, 2]));
     assert.deepEqual([...table.getChild('name')!], ['Alice', 'Bob']);
   });
 
@@ -19,6 +19,18 @@ describe('rowsToTable', () => {
     const table = rowsToTable([{ x: 42 }]);
     assert.equal(table.numRows, 1);
     assert.equal(table.getChild('x')!.get(0), 42);
+  });
+
+  it('handles nullable struct columns', () => {
+    const table = rowsToTable([
+      { id: 1, details: { a: 1 } },
+      { id: 2, details: null },
+    ]);
+
+    assert.equal(table.numRows, 2);
+    assert.equal(table.numCols, 2);
+    assert.equal(table.getChild('details')!.get(0)?.a, 1);
+    assert.equal(table.getChild('details')!.get(1), null);
   });
 
   it('throws on empty array', () => {
