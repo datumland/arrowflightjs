@@ -4,19 +4,22 @@ import { ActionOperation } from './action';
 import type { FlightServiceClient } from '../generated/Flight';
 import type { Action, Result } from '../generated/Flight';
 
-/** Mock that captures the Action sent to doAction. */
+/** Mock that captures the Action and CallOptions sent to doAction. */
 function mockClient(results: Result[] = []) {
   const captured: Action[] = [];
+  const capturedOptions: unknown[] = [];
 
   const client = {
     captured,
-    doAction: async function* (action: Action) {
+    capturedOptions,
+    doAction: async function* (action: Action, options?: unknown) {
       captured.push(action);
+      capturedOptions.push(options);
       for (const r of results) {
         yield r;
       }
     },
-  } as unknown as FlightServiceClient & { captured: Action[] };
+  } as unknown as FlightServiceClient & { captured: Action[]; capturedOptions: unknown[] };
 
   return client;
 }
@@ -70,5 +73,33 @@ describe('ActionOperation', () => {
     const op = new ActionOperation(client, 'x');
 
     assert.equal(op.withBody(Buffer.from('b')), op);
+  });
+
+  it('passes gRPC metadata when withHeaders() is called', async () => {
+    const client = mockClient();
+
+    await new ActionOperation(client, 'test')
+      .withHeaders({ 'x-token': 'abc', 'x-request-id': '42' })
+      .execute();
+
+    const opts = client.capturedOptions[0] as any;
+    assert.ok(opts, 'options should be defined');
+    assert.equal(opts.metadata.get('x-token'), 'abc');
+    assert.equal(opts.metadata.get('x-request-id'), '42');
+  });
+
+  it('passes no options when withHeaders() is not called', async () => {
+    const client = mockClient();
+
+    await new ActionOperation(client, 'test').execute();
+
+    assert.equal(client.capturedOptions[0], undefined);
+  });
+
+  it('withHeaders() returns this for chaining', () => {
+    const client = mockClient();
+    const op = new ActionOperation(client, 'x');
+
+    assert.equal(op.withHeaders({ 'x-token': 'abc' }), op);
   });
 });

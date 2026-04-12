@@ -6,13 +6,16 @@ import { FlightDescriptor_DescriptorType } from '../generated/Flight';
 import type { FlightServiceClient } from '../generated/Flight';
 import type { FlightData, PutResult } from '../generated/Flight';
 
-/** Minimal mock that captures the FlightData messages sent via doPut. */
+/** Minimal mock that captures the FlightData messages and CallOptions sent via doPut. */
 function mockClient(putResults: PutResult[] = []) {
   const captured: FlightData[] = [];
+  const capturedOptions: unknown[] = [];
 
   const client = {
     captured,
-    doPut: async function* (stream: AsyncIterable<FlightData>) {
+    capturedOptions,
+    doPut: async function* (stream: AsyncIterable<FlightData>, options?: unknown) {
+      capturedOptions.push(options);
       for await (const msg of stream) {
         captured.push(msg);
       }
@@ -20,7 +23,7 @@ function mockClient(putResults: PutResult[] = []) {
         yield r;
       }
     },
-  } as unknown as FlightServiceClient & { captured: FlightData[] };
+  } as unknown as FlightServiceClient & { captured: FlightData[]; capturedOptions: unknown[] };
 
   return client;
 }
@@ -125,5 +128,35 @@ describe('PutOperation', () => {
 
     const op3 = new PutOperation(client, table);
     assert.equal(op3.withMetadata(Buffer.from('m')), op3);
+  });
+
+  it('passes gRPC metadata when withHeaders() is called', async () => {
+    const client = mockClient();
+
+    await new PutOperation(client, table)
+      .toPath(['x'])
+      .withHeaders({ 'authorization': 'Bearer tok' })
+      .execute();
+
+    const opts = client.capturedOptions[0] as any;
+    assert.ok(opts, 'options should be defined');
+    assert.equal(opts.metadata.get('authorization'), 'Bearer tok');
+  });
+
+  it('passes no options when withHeaders() is not called', async () => {
+    const client = mockClient();
+
+    await new PutOperation(client, table)
+      .toPath(['x'])
+      .execute();
+
+    assert.equal(client.capturedOptions[0], undefined);
+  });
+
+  it('withHeaders() returns this for chaining', () => {
+    const client = mockClient();
+    const op = new PutOperation(client, table);
+
+    assert.equal(op.withHeaders({ 'x-token': 'abc' }), op);
   });
 });

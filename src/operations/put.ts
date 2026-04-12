@@ -1,5 +1,6 @@
 import { tableToIPC } from 'apache-arrow';
 import type { Table } from 'apache-arrow';
+import { Metadata } from 'nice-grpc';
 import type { FlightServiceClient } from '../generated/Flight';
 import { FlightDescriptor_DescriptorType } from '../generated/Flight';
 import type { FlightDescriptor, FlightData, PutResult } from '../generated/Flight';
@@ -79,6 +80,7 @@ function readBodyLength(metadata: Buffer): number {
 export class PutOperation {
   private descriptor: FlightDescriptor | undefined;
   private appMetadata: Buffer | undefined;
+  private headers: Record<string, string> | undefined;
 
   constructor(
     private client: FlightServiceClient,
@@ -108,6 +110,11 @@ export class PutOperation {
     return this;
   }
 
+  withHeaders(headers: Record<string, string>): this {
+    this.headers = headers;
+    return this;
+  }
+
   async execute(): Promise<PutResult[]> {
     if (!this.descriptor) {
       throw new Error('Flight descriptor required — call toPath() or toCmd() before execute()');
@@ -131,8 +138,9 @@ export class PutOperation {
       }
     }
 
+    const options = this.headers ? { metadata: Metadata(this.headers) } : undefined;
     const results: PutResult[] = [];
-    for await (const result of this.client.doPut(flightDataStream())) {
+    for await (const result of this.client.doPut(flightDataStream(), options)) {
       results.push(result);
     }
     return results;
