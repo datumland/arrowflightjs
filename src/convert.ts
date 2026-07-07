@@ -63,3 +63,29 @@ export function rowsToTable(rows: Record<string, unknown>[]): Table {
 
   return tableFromJSON(normalised);
 }
+
+/**
+ * Recursively turn an Arrow row value into plain JS.
+ * StructRow.toJSON() is shallow — nested structs come back as StructRow proxies and
+ * lists as Vectors — so recurse until every value is a plain object / array / scalar.
+ */
+function toPlain(value: unknown): unknown {
+  if (value == null || typeof value !== 'object') return value; // scalars, bigint, null
+  if (value instanceof Date || value instanceof Uint8Array) return value;
+  if (Array.isArray(value)) return value.map(toPlain);
+
+  const json = (value as { toJSON?: () => unknown }).toJSON?.();
+  if (Array.isArray(json)) return json.map(toPlain); // Vector (list)
+  if (json != null && typeof json === 'object') {
+    // StructRow / MapRow
+    return Object.fromEntries(
+      Object.entries(json).map(([k, v]) => [k, toPlain(v)]),
+    );
+  }
+  return value;
+}
+
+/** Pivot a columnar Arrow Table back into an array of plain row objects. */
+export function tableToRows(table: Table): Record<string, unknown>[] {
+  return table.toArray().map((row) => toPlain(row) as Record<string, unknown>);
+}

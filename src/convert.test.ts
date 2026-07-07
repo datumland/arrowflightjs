@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { rowsToTable } from './convert.js';
+import { rowsToTable, tableToRows } from './convert.js';
 
 describe('rowsToTable', () => {
   it('converts row objects to a columnar Arrow Table', () => {
@@ -73,5 +73,38 @@ describe('rowsToTable', () => {
     assert.equal(table.getChild('float')!.get(0), 1.5);
     assert.equal(table.getChild('str')!.get(0), 'a');
     assert.equal(table.getChild('bool')!.get(0), true);
+  });
+});
+
+describe('tableToRows', () => {
+  it('round-trips flat rows', () => {
+    const rows = [
+      { id: 1, name: 'Alice' },
+      { id: 2, name: 'Bob' },
+    ];
+
+    assert.deepEqual(tableToRows(rowsToTable(rows)), rows);
+  });
+
+  it('deep-converts nested structs to plain objects', () => {
+    const rows = [
+      { id: 1, meta: { a: 1, nested: { x: 10 } } },
+      { id: 2, meta: { a: 2, nested: { x: 20 } } },
+    ];
+
+    const out = tableToRows(rowsToTable(rows));
+
+    assert.deepEqual(out, rows);
+    // Nested value must be a plain object, not an Arrow StructRow proxy.
+    assert.equal((out[0].meta as { constructor: unknown }).constructor, Object);
+  });
+
+  it('keeps null struct cells null', () => {
+    const rows = [
+      { id: 1, meta: { a: 1 } },
+      { id: 2, meta: null },
+    ];
+
+    assert.deepEqual(tableToRows(rowsToTable(rows)), rows);
   });
 });
