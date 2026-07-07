@@ -15,6 +15,12 @@ import {
 import { PutOperation } from './operations/put.js';
 import { rowsToTable } from './convert.js';
 import { ActionOperation } from './operations/action.js';
+import { GetOperation } from './operations/get.js';
+import type { TicketInput } from './operations/get.js';
+import { FlightsOperation } from './operations/flights.js';
+import type { DescriptorInput } from './operations/flights.js';
+import { parseLocation } from './location.js';
+import type { Location } from './generated/Flight.js';
 
 export interface FlightClientOptions {
   tls?: boolean;
@@ -41,8 +47,10 @@ export class FlightClient {
   private channel: Channel;
   private grpcClient: FlightServiceClient;
 
-  constructor(address: string, options: FlightClientOptions = {}) {
-    const creds = options.tls
+  constructor(location: string | Location, options: FlightClientOptions = {}) {
+    const { address, tls } = parseLocation(location);
+    const useTls = tls ?? options.tls ?? false;
+    const creds = useTls
       ? ChannelCredentials.createSsl()
       : ChannelCredentials.createInsecure();
 
@@ -72,6 +80,14 @@ export class FlightClient {
   put(data: Table | Record<string, unknown>[]): PutOperation {
     const table = Array.isArray(data) ? rowsToTable(data) : data;
     return new PutOperation(this.grpcClient, table);
+  }
+
+  flights(descriptor: DescriptorInput): FlightsOperation {
+    return new FlightsOperation(this.grpcClient, descriptor);
+  }
+
+  get(ticket: TicketInput | undefined): GetOperation {
+    return new GetOperation(this.grpcClient, ticket);
   }
 
   action(type: string): ActionOperation {
