@@ -24,7 +24,7 @@
     "test": "node --test ./dist/*.test.js ./dist/**/*.test.js"
   },
   "dependencies": {
-    "apache-arrow": "^21.1.0",
+    "apache-arrow": "^21.2.0",
     "nice-grpc": "^2.1.16"
   },
   "devDependencies": {
